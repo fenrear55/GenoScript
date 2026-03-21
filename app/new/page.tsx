@@ -6,6 +6,7 @@ import { Upload, FileText, X, CheckCircle2, Loader2 } from "lucide-react";
 import { Navbar } from "@/components/navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { parsePGxReport } from "@/lib/parsePGx";
 import {
   Card,
   CardContent,
@@ -57,17 +58,26 @@ export default function NewPatientPage() {
     e.preventDefault();
     setIsUploading(true);
 
-    // Simulate upload progress
-    for (let i = 0; i <= 100; i += 10) {
-      setUploadProgress(i);
-      await new Promise((resolve) => setTimeout(resolve, 200));
+    setIsUploading(true);
+    setUploadProgress(0);
+
+    try {
+      setUploadProgress(10);
+      const report = await parsePGxReport(file!);
+      setUploadProgress(100);
+      console.log(report);
+
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      // Navigate to the patient page (eventually replace with actual patient ID from backend)
+      router.push("/patients/PX-001");
+    } catch (err) {
+      console.error("Failed to parse report:", err);
+      setIsUploading(false);
+      setUploadProgress(0);
+    } finally {
+      setIsUploading(false);
+      setUploadProgress(0);
     }
-
-    // Simulate processing
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    // Navigate to the patient page
-    router.push("/patients/PX-001");
   };
 
   const isFormValid = formData.name && formData.dateOfBirth && file;
@@ -233,7 +243,7 @@ export default function NewPatientPage() {
                   <div className="flex-1">
                     <p className="font-medium text-[#00513F]">
                       {uploadProgress < 100
-                        ? "Processing PGx Report..."
+                        ? "Analyzing PGx report..."
                         : "Report processed successfully!"}
                     </p>
                     <div className="mt-2 h-2 overflow-hidden rounded-full bg-[#00C9A7]/20">
