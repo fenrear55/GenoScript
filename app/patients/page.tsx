@@ -1,52 +1,35 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, UserPlus } from "lucide-react";
 import Link from "next/link";
 import { Navbar } from "@/components/navbar";
 import { PatientCard } from "@/components/patient-card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-
-// Demo patient data
-const demoPatients = [
-  {
-    id: "PX-001",
-    name: "Sarah Johnson",
-    dateOfBirth: "1985-03-15",
-    reportDate: "March 18, 2026",
-    geneCount: 12,
-  },
-  {
-    id: "PX-002",
-    name: "Michael Chen",
-    dateOfBirth: "1972-08-22",
-    reportDate: "March 15, 2026",
-    geneCount: 10,
-  },
-  {
-    id: "PX-003",
-    name: "Emily Rodriguez",
-    dateOfBirth: "1990-11-08",
-    reportDate: "March 10, 2026",
-    geneCount: 14,
-  },
-  {
-    id: "PX-004",
-    name: "James Williams",
-    dateOfBirth: "1968-05-30",
-    reportDate: "March 5, 2026",
-    geneCount: 11,
-  },
-];
+import axios from "axios";
+import { IPatient } from "@/models/patient";
 
 export default function PatientsPage() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [patients, setPatients] = useState<IPatient[]>([]);
 
-  const filteredPatients = demoPatients.filter(
+  useEffect(() => {
+    axios
+      .get("/api/patients")
+      .then((response) => {
+        setPatients(response.data);
+        console.log("Patients data:", response.data);
+      })
+      .catch((error) => {
+        console.error("Error fetching patients:", error);
+      });
+  }, []);
+
+  const filteredPatients = patients.filter(
     (patient) =>
-      patient.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      patient.id.toLowerCase().includes(searchQuery.toLowerCase()),
+      patient.fname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      patient.lname.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
@@ -87,7 +70,7 @@ export default function PatientsPage() {
         <div className="space-y-4">
           {filteredPatients.length > 0 ? (
             filteredPatients.map((patient) => (
-              <PatientCard key={patient.id} patient={patient} />
+              <PatientCard key={patient._id.toString()} patient={patient} />
             ))
           ) : (
             <div className="rounded-lg border border-dashed border-[#E2E8F0] bg-white p-12 text-center">
