@@ -19,7 +19,7 @@ export default function PatientsPage() {
       .get("/api/patients")
       .then((response) => {
         setPatients(response.data);
-        console.log("Patients data:", response.data);
+        // console.log("Patients data:", response.data);
       })
       .catch((error) => {
         console.error("Error fetching patients:", error);

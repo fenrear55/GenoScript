@@ -26,10 +26,10 @@ export function PatientCard({ patient }: { patient: IPatient }) {
                 <Calendar className="h-4 w-4" />
                 DOB: {patient.dob}
               </span>
-              <span className="flex items-center gap-1.5">
+              {/* <span className="flex items-center gap-1.5">
                 <FileText className="h-4 w-4" />
                 {patient.num_genes} genes
-              </span>
+              </span> */}
             </div>
 
             <p className="text-xs text-[#718096]">

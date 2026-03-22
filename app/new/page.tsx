@@ -15,6 +15,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
+import axios from "axios";
 
 export default function NewPatientPage() {
   const router = useRouter();
@@ -67,9 +68,24 @@ export default function NewPatientPage() {
       setUploadProgress(100);
       console.log(report);
 
+      const result = await fetch("/api/patients", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          dob: formData.dateOfBirth,
+          report: report,
+        }),
+      });
+
+      const data = await result.json();
+
+      if (!result.ok) {
+        throw new Error(data.error ?? "Failed to save patient");
+      }
+
       await new Promise((resolve) => setTimeout(resolve, 800));
-      // Navigate to the patient page (eventually replace with actual patient ID from backend)
-      router.push("/patients/PX-001");
+      router.push(`/patients/${data.patientId}`);
     } catch (err) {
       console.error("Failed to parse report:", err);
       setIsUploading(false);
