@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import type { IPatient } from "@/models/patient";
+import { checkDrugForPatient } from "@/lib/cpic";
 
 interface Gene {
   _id: string;
@@ -108,13 +109,9 @@ export default function PatientDetailPage() {
     setDrugLoading(true);
 
     try {
-      const res = await fetch("/api/drug-check", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ drugName: searchTerm, patientId }),
-      });
-      const result = await res.json();
-      setDrugResult(result.found ? result.recommendations[0] : null);
+      const result = await checkDrugForPatient(searchTerm, genes);
+      console.log(result);
+      setDrugResult(result);
     } catch {
       setDrugResult(null);
     } finally {
