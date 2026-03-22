@@ -1,18 +1,19 @@
 ## Inspiration
 
 **Pharmacogenomic (PGx)** reports contain valuable genetic insights, but they are often delivered as dense, unstructured documents that are difficult for clinicians to quickly interpret. This creates a gap between available genetic data and real-world clinical decision-making.
-We were inspired to bridge this gap by building a tool that transforms complex PGx reports into actionable, evidence-based guidance. Our goal was to reduce trial-and-error prescribing and improve patient outcomes through personalized medicine.
+We were inspired to bridge this gap by building a tool that transforms complex PGx reports into actionable, evidence-based guidance. Our goal was to reduce trial-and-error prescribing and improve patient outcomes through personalized medicine. Genoscript is able to reduce the time and complexity for clinicians when looking at Pgx reports and prescribing medicine.
 
 ## What it does
 
 GenoScript is a clinical decision-support tool that:
 
-- Parses pharmacogenomic (PGx) reports into structured gene-phenotype data
+- Parses pharmacogenomic (PGx) reports into structured gene-phenotype data plain english
 - Stores patient data securely for future reference
 - Allows clinicians to input a medication (e.g., sertraline)
 - Uses **CPIC** guidelines to generate evidence-based drug recommendations
 - Displays risk levels using intuitive severity flags (red, yellow, green)
   This enables providers to make faster, more informed prescribing decisions tailored to each patient’s genetic profile.
+- Shows other alternative drugs that may be a better option that are effected by the same gene
 
 ## How we built it
 
@@ -34,7 +35,7 @@ We built GenoScript using:
 
 - Successfully built an end-to-end pharmacogenomics decision-support tool within a hackathon timeframe
 - Transformed unstructured PGx reports into structured, usable gene-phenotype data using AI
-- Integrated real clinical guidelines (CPIC) to generate evidence-based drug recommendations
+- Integrated real clinical guidelines (CPIC) to generate evidence-based drug recommendations and alternatives
 - Designed an intuitive, color-coded system (red/yellow/green) to clearly communicate clinical risk
 - Created a scalable architecture combining frontend, database, AI parsing, and external APIs
 - Bridged the gap between complex genetic data and practical clinical decision-making
@@ -51,3 +52,4 @@ We built GenoScript using:
 
 - Integration with electronic health records (EHR systems)
 - Real-time clinical validation and provider feedback loops
+- integrating real patient charts In for hospitals to be able to use the application
