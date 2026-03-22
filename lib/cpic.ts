@@ -13,7 +13,10 @@ export async function getDrugInfo(drugName: string) {
     `${CPIC_BASE}/drug?name=eq.${drugName.toLowerCase()}`,
   );
   const data = await res.json();
-  if (!data.length) return null;
+
+  // return null if drug not found OR has no CPIC guideline
+  if (!data.length || !data[0].guidelineid) return null;
+
   return {
     drugid: data[0].drugid,
     guidelineid: data[0].guidelineid,
@@ -33,16 +36,17 @@ export async function getRelevantGenes(guidelineid: number, drugid: string) {
   );
   const recs = await res.json();
 
-  // filter to only this specific drug, not siblings in the guideline
   const drugRecs = recs.filter((r) => r.drugid === drugid);
 
-  // extract unique gene names from phenotypes field
   const genes = new Set();
   drugRecs.forEach((r) => {
-    Object.keys(r.phenotypes).forEach((gene) => genes.add(gene));
+    // check phenotypes first, fall back to allelestatus for HLA genes
+    const source =
+      Object.keys(r.phenotypes).length > 0 ? r.phenotypes : r.allelestatus;
+    Object.keys(source).forEach((gene) => genes.add(gene));
   });
 
-  return [...genes]; // e.g. ["CYP2D6"]
+  return [...genes];
 }
 
 // 3. Check which of those genes exist in the patient report
@@ -56,7 +60,9 @@ export function matchPatientGenes(relevantGenes, patientGenes) {
   const missing: any = [];
 
   relevantGenes.forEach((gene) => {
-    const found = patientGenes.find((g) => g.gene === gene);
+    const found = patientGenes.find(
+      (g) => g.gene === gene || g.gene.startsWith(gene),
+    );
     if (found) {
       matched[gene] = found.phenotype;
     } else {
@@ -74,76 +80,60 @@ export function matchPatientGenes(relevantGenes, patientGenes) {
 //    Output: { severity, recommendation, implication,
 //              classification, genesInvolved }
 // ─────────────────────────────────────────
-export async function getFlagResult(
-  guidelineid: number,
-  drugid: string,
-  matched: Record<string, string>,
-) {
-  if (!Object.keys(matched).length) {
-    return {
-      severity: "gray",
-      recommendation: "No genetic data available for this drug.",
-      implication: null,
-      classification: "No Recommendation",
-      genesInvolved: [],
-    };
-  }
-
+export async function getFlagResult(guidelineid, drugid, matched) {
   const res = await fetch(
     `${CPIC_BASE}/recommendation?guidelineid=eq.${guidelineid}`,
   );
   const recs = await res.json();
   const drugRecs = recs.filter((r) => r.drugid === drugid);
 
+  let lookupSource: Record<string, string> = {};
+
   const match = drugRecs.find((rec) => {
-    return Object.entries(rec.phenotypes).every(([gene, phenotype]) => {
-      return matched[gene] === phenotype;
+    lookupSource =
+      Object.keys(rec.phenotypes).length > 0
+        ? rec.phenotypes
+        : rec.allelestatus;
+
+    return Object.entries(lookupSource).every(([gene, cpicValue]) => {
+      const patientValue = matched[gene];
+      if (!patientValue) return false;
+      return (cpicValue as string)
+        .toLowerCase()
+        .includes(patientValue.toLowerCase());
     });
   });
 
-  if (!match) {
-    return {
-      severity: "gray",
-      recommendation: "No matching recommendation found for this genotype.",
-      implication: null,
-      classification: "No Recommendation",
-      genesInvolved: [],
-    };
-  }
+  if (!match) return null;
 
   const recText = match.drugrecommendation.toLowerCase();
-  let severity;
+  let severity = "gray";
 
-  if (match.classification === "Strong" && recText.includes("avoid")) {
+  if (
+    match.classification === "Strong" &&
+    (recText.includes("do not use") || recText.includes("avoid"))
+  ) {
     severity = "red";
+  } else if (match.classification === "Strong" && recText.includes("use")) {
+    severity = "green";
   } else if (
     match.classification === "Moderate" ||
     match.classification === "Optional"
   ) {
     severity = "yellow";
-  } else if (match.classification === "Strong" && recText.includes("use")) {
-    severity = "green";
-  } else if (match.classification === "No Recommendation") {
-    severity = "gray";
-  } else {
-    severity = "yellow";
   }
-
-  // build genesInvolved with full details not just name
-  const genesInvolved = Object.entries(match.phenotypes).map(
-    ([gene, phenotype]) => ({
-      gene,
-      phenotype, // e.g. "Poor Metabolizer"
-      patientValue: matched[gene], // what this specific patient has
-    }),
-  );
 
   return {
     severity,
     recommendation: match.drugrecommendation,
-    implication: Object.values(match.implications)[0],
+    implication: Object.values(match.implications)
+      .filter((v) => v !== "n/a")
+      .join(" | "),
     classification: match.classification,
-    genesInvolved, // now has full gene + phenotype info
+    genesInvolved: Object.entries(lookupSource).map(([gene]) => ({
+      gene,
+      phenotype: matched[gene],
+    })),
   };
 }
 
@@ -226,6 +216,7 @@ export async function getAlternatives(
 export async function checkDrugForPatient(drugName, patientGenes) {
   // step 1 — drug not in CPIC at all
   const drug = await getDrugInfo(drugName);
+
   if (!drug) {
     return {
       severity: "gray",
@@ -245,7 +236,7 @@ export async function checkDrugForPatient(drugName, patientGenes) {
   const { matched, missing } = matchPatientGenes(relevantGenes, patientGenes);
 
   // step 4 — patient missing relevant genes
-  if (missing.length > 0 && Object.keys(matched).length === 0) {
+  if (missing.length > 0) {
     return {
       severity: "gray",
       reason: "missing_genes",
