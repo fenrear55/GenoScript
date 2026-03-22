@@ -1,23 +1,23 @@
-import mongoose, { Schema, Document } from 'mongoose';
+// models/pgxResult.ts
+import mongoose from "mongoose";
 
-interface IPgxResult extends Document {
-    patientId: mongoose.Types.ObjectId;
-    gene: string;
-    diplotype: string;
-    phenotype: string;
-    rawReport: string;
-    parsedAt: Date;
-}
-
-const PgxResultSchema: Schema = new Schema({
-    patientId: { type: mongoose.Types.ObjectId, ref: 'Patient', required: true },
-    gene: { type: String, required: true },
-    diplotype: { type: String, required: true },
-    phenotype: { type: String, required: true },
-    rawReport: { type: String, required: true },
-    parsedAt: { type: Date, default: Date.now }  // Will use the date when the record is created
+const geneSchema = new mongoose.Schema({
+  gene: String,
+  diplotype: String,
+  phenotype: String,
+  plainEnglish: String,
 });
 
-const PgxResult = mongoose.model<IPgxResult>('PgxResult', PgxResultSchema);
+const pgxResultSchema = new mongoose.Schema(
+  {
+    patientId: mongoose.Schema.Types.ObjectId,
+    lab: String,
+    reportDate: String,
+    genes: [geneSchema],
+    parsedAt: Date,
+  },
+  { collection: "pgxresults" },
+);
 
-export default PgxResult;
+export default mongoose.models.PgxResult ||
+  mongoose.model("PgxResult", pgxResultSchema);
