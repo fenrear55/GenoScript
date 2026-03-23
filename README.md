@@ -1,36 +1,55 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Inspiration
 
-## Getting Started
+**Pharmacogenomic (PGx)** reports contain valuable genetic insights, but they are often delivered as dense, unstructured documents that are difficult for clinicians to quickly interpret. This creates a gap between available genetic data and real-world clinical decision-making.
+We were inspired to bridge this gap by building a tool that transforms complex PGx reports into actionable, evidence-based guidance. Our goal was to reduce trial-and-error prescribing and improve patient outcomes through personalized medicine. Genoscript is able to reduce the time and complexity for clinicians when looking at Pgx reports and prescribing medicine.
 
-First, run the development server:
+## What it does
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+GenoScript is a clinical decision-support tool that:
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Parses pharmacogenomic (PGx) reports into structured gene-phenotype data plain english
+- Stores patient data securely for future reference
+- Allows clinicians to input a medication (e.g., sertraline)
+- Uses **CPIC** guidelines to generate evidence-based drug recommendations
+- Displays risk levels using intuitive severity flags (red, yellow, green)
+  This enables providers to make faster, more informed prescribing decisions tailored to each patient’s genetic profile.
+- Shows other alternative drugs that may be a better option that are effected by the same gene
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How we built it
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+We built GenoScript using:
 
-## Learn More
+- **Next.js + TypeScript** for the frontend and application logic
+- **MongoDB** for storing patient data and PGx results
+- **CPIC Pharmacogenomics API** to retrieve clinical guidelines
+- **Gemini** to parse unstructured PGx reports into structured gene-phenotype mappings
 
-To learn more about Next.js, take a look at the following resources:
+## Challenges we ran into
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Parsing unstructured PGx reports: Reports vary widely in format, requiring robust AI-based extraction prompts to standardize gene-phenotype data
+- Mapping to clinical guidelines: Ensuring accurate matching between patient phenotypes and CPIC recommendations required careful data handling
+- Balancing usability and clinical accuracy: We needed to present complex medical information in a way that is both precise and easy to interpret
+- Time constraints: Integrating multiple systems (AI parsing, database, API lookup, UI) within a hackathon timeframe required prioritization and rapid iteration
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Accomplishments that we're proud of
 
-## Deploy on Vercel
+- Successfully built an end-to-end pharmacogenomics decision-support tool within a hackathon timeframe
+- Transformed unstructured PGx reports into structured, usable gene-phenotype data using AI
+- Integrated real clinical guidelines (CPIC) to generate evidence-based drug recommendations and alternatives
+- Designed an intuitive, color-coded system (red/yellow/green) to clearly communicate clinical risk
+- Created a scalable architecture combining frontend, database, AI parsing, and external APIs
+- Bridged the gap between complex genetic data and practical clinical decision-making
+- Delivered a polished, functional prototype that demonstrates real-world healthcare impact
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## What we learned
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- How to integrate AI-driven data extraction into a real clinical workflow
+- The importance of standardized medical data structures for interoperability
+- How to design user interfaces for healthcare professionals, where clarity and trust are critical
+- The potential of combining genomics + AI + decision support systems to improve patient care
+
+## What's next for GenoScript
+
+- Integration with electronic health records (EHR systems)
+- Real-time clinical validation and provider feedback loops
+- integrating real patient charts In for hospitals to be able to use the application
