@@ -1,3 +1,12 @@
+# GenoScript 🧬
+
+> AI-powered pharmacogenomic decision support for clinicians
+
+**🏆 VandyHacks XII Winner | Best Use of AI**
+
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Visit%20Site-blue?style=for-the-badge)](https://vercel-deploy-eight-sigma.vercel.app)
+[![Watch Demo](https://img.shields.io/badge/Demo%20Video-Watch%20Now-red?style=for-the-badge&logo=youtube)](https://www.youtube.com/watch?v=n6-3jBB7M50)
+
 ## Inspiration
 
 **Pharmacogenomic (PGx)** reports contain valuable genetic insights, but they are often delivered as dense, unstructured documents that are difficult for clinicians to quickly interpret. This creates a gap between available genetic data and real-world clinical decision-making.
